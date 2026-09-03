@@ -608,7 +608,7 @@ function initForm() {
 
     setLoading(true);
     try {
-      const res = await fetch('https://mental-health-api-uj4w.onender.com', {
+      const res = await fetch('https://mental-health-api-1-0sm3.onrender.com/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildPayload()),
