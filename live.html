@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MindMetric — Mental Health Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            emerald: {
+              50:  '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0',
+              300: '#6ee7b7', 400: '#34d399', 500: '#10b981',
+              600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b',
+            },
+            slate: {
+              50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1',
+              400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155',
+              800: '#1e293b', 900: '#0f172a', 950: '#020617',
+            }
+          },
+        }
+      }
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-100 transition-colors duration-500 overflow-x-hidden">
+
+  <!-- Ambient background blobs -->
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Particle canvas -->
+  <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- ── Top Nav ─────────────────────────────────────────────── -->
+  <header id="mainHeader" class="sticky top-0 z-50 transition-all duration-300">
+    <div class="header-inner">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 group cursor-pointer">
+          <div class="logo-mark">
+            <div class="logo-ring"></div>
+            <svg class="w-4 h-4 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <span class="font-black text-lg tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">MindMetric</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/60 dark:border-emerald-700/30 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            AI-Powered
+          </span>
+
+          <!-- Theme Toggle -->
+          <button id="themeToggle" aria-label="Toggle theme" class="theme-toggle-btn">
+            <div class="toggle-track">
+              <div class="toggle-thumb">
+                <!-- Sun -->
+                <svg id="sunIcon" class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+                </svg>
+                <!-- Moon -->
+                <svg id="moonIcon" class="w-3.5 h-3.5 text-slate-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+                </svg>
+              </div>
+              <div class="toggle-stars" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Hero ───────────────────────────────────────────────── -->
+  <section class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-10">
+    <div class="text-center max-w-3xl mx-auto">
+      <!-- Animated badge -->
+      <div class="hero-badge animate-float-in">
+        <span class="badge-dot"></span>
+        <span>Mental Wellness Assessment</span>
+        <span class="badge-arrow">→</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="hero-headline animate-slide-up-hero">
+        Understand Your
+        <span class="gradient-text"> Mental Wellness</span>
+        <br class="hidden sm:block"/>in Minutes
+      </h1>
+
+      <!-- Subtext -->
+      <p class="hero-sub animate-fade-in-hero">
+        Answer a few questions about your lifestyle, habits, and digital usage. Our AI model delivers a personalized wellness score with actionable insights.
+      </p>
+
+      <!-- Stats row -->
+      <div class="stats-row animate-fade-in-hero-delay">
+        <div class="stat-item">
+          <span class="stat-num">12</span>
+          <span class="stat-label">Questions</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">~2</span>
+          <span class="stat-label">Minutes</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">AI</span>
+          <span class="stat-label">Powered</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Main Form ───────────────────────────────────────────── -->
+  <main class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pb-20">
+    <form id="predictForm" novalidate>
+
+      <!-- Progress bar -->
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Form Progress</span>
+          <span id="progressPct" class="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div id="progressBar" class="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- ── Section 1: Personal Profile ── -->
+      <div class="section-block" data-section="1">
+        <div class="section-header">
+          <div class="section-icon">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">Personal Profile</h2>
+            <p class="section-sub">Basic demographic information</p>
+          </div>
+          <div class="section-number">01</div>
+        </div>
+
+        <div class="fields-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Age -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+            </div>
+            <label for="age" class="field-label">Age</label>
+            <input type="number" id="age" name="Age" min="0" max="120" placeholder="25" class="field-input" autocomplete="off"/>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Gender -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
+            </div>
+            <label for="gender" class="field-label">Gender</label>
+            <div class="select-wrap">
+              <select id="gender" name="Gender" class="field-select">
+                <option value="">Select…</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Country -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253M3 12c0-.778.099-1.533.284-2.253"/></svg>
+            </div>
+            <label for="country" class="field-label">Country</label>
+            <div class="select-wrap">
+              <select id="country" name="Country" class="field-select">
+                <option value="">Select…</option>
+                <option value="Pakistan">🇵🇰 Pakistan</option>
+                <option value="India">🇮🇳 India</option>
+                <option value="USA">🇺🇸 USA</option>
+                <option value="Canada">🇨🇦 Canada</option>
+                <option value="Australia">🇦🇺 Australia</option>
+                <option value="UK">🇬🇧 UK</option>
+                <option value="Germany">🇩🇪 Germany</option>
+                <option value="Mexico">🇲🇽 Mexico</option>
+                <option value="Turkey">🇹🇷 Turkey</option>
+                <option value="France">🇫🇷 France</option>
+                <option value="Other">🌍 Other</option>
+              </select>
+              <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Academic Level -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
+            </div>
+            <label for="academic" class="field-label">Academic Level</label>
+            <div class="select-wrap">
+              <select id="academic" name="Academic_Level" class="field-select">
+                <option value="">Select…</option>
+                <option value="High School">High School</option>
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Graduate">Graduate</option>
+                <option value="Postgraduate">Postgraduate</option>
+              </select>
+              <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Stress Level -->
+          <div class="field-card sm:col-span-2 lg:col-span-2" data-field>
+            <div class="field-icon-wrap">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+            </div>
+            <label class="field-label">Stress Level</label>
+            <div class="stress-chips" id="stressChips" role="group" aria-label="Stress Level">
+              <button type="button" class="stress-chip" data-value="Low">😌 Low</button>
+              <button type="button" class="stress-chip" data-value="Medium">😐 Medium</button>
+              <button type="button" class="stress-chip" data-value="High">😟 High</button>
+              <button type="button" class="stress-chip" data-value="Too High">😰 Too High</button>
+            </div>
+            <input type="hidden" id="stress" name="Stress_Level" />
+            <div class="field-err hidden"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Section 2: Digital Habits ── -->
+      <div class="section-block" data-section="2">
+        <div class="section-header">
+          <div class="section-icon" style="background: linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3m-3 3h3M7.5 15.75h.008v.008H7.5v-.008z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">Digital Habits</h2>
+            <p class="section-sub">Screen time & platform usage</p>
+          </div>
+          <div class="section-number" style="color:#6366f1;border-color:#6366f120;background:linear-gradient(135deg,#6366f108,#8b5cf608)">02</div>
+        </div>
+
+        <div class="fields-grid grid grid-cols-1 sm:grid-cols-2">
+
+          <!-- Platform -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+            </div>
+            <label for="platform" class="field-label">Most Used Platform</label>
+            <div class="select-wrap">
+              <select id="platform" name="Most_Used_Platform" class="field-select">
+                <option value="">Select…</option>
+                <option value="Facebook">📘 Facebook</option>
+                <option value="Instagram">📸 Instagram</option>
+                <option value="Twitter">🐦 Twitter</option>
+                <option value="LinkedIn">💼 LinkedIn</option>
+                <option value="Snapchat">👻 Snapchat</option>
+                <option value="TikTok">🎵 TikTok</option>
+              </select>
+              <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Purpose -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
+            </div>
+            <label for="purpose" class="field-label">Purpose of Use</label>
+            <div class="select-wrap">
+              <select id="purpose" name="Purpose_Of_Use" class="field-select">
+                <option value="">Select…</option>
+                <option value="Socializing">🤝 Socializing</option>
+                <option value="Networking">🌐 Networking</option>
+                <option value="Entertainment">🎮 Entertainment</option>
+                <option value="Information">📰 Information</option>
+                <option value="Other">✨ Other</option>
+              </select>
+              <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+            </div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Avg Daily Usage Hours -->
+          <div class="field-card sm:col-span-2" data-field>
+            <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="range-header">
+              <label for="avgHours" class="field-label">Avg. Daily Social Media Usage</label>
+              <div class="range-badge" id="avgHoursBadge">
+                <span id="avgHoursVal">3</span><span class="range-unit">hrs</span>
+              </div>
+            </div>
+            <div class="range-wrap">
+              <input type="range" id="avgHours" name="Avg_Daily_Usage_Hours" min="0" max="24" step="0.5" value="3" class="custom-range" />
+              <div class="range-track-glow" id="avgHoursGlow" style="width:12.5%"></div>
+            </div>
+            <div class="range-labels">
+              <span>0 hrs</span><span>6 hrs</span><span>12 hrs</span><span>18 hrs</span><span>24 hrs</span>
+            </div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Daily Unlocks -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3"/></svg>
+            </div>
+            <label for="unlocks" class="field-label">Daily Phone Unlocks</label>
+            <input type="number" id="unlocks" name="Daily_Unlocks" min="0" placeholder="40" class="field-input" autocomplete="off"/>
+            <div class="field-hint">Average times you unlock your phone per day</div>
+            <div class="field-err hidden"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Section 3: Lifestyle ── -->
+      <div class="section-block" data-section="3">
+        <div class="section-header">
+          <div class="section-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">Lifestyle & Health</h2>
+            <p class="section-sub">Daily routines & physical wellness</p>
+          </div>
+          <div class="section-number" style="color:#f59e0b;border-color:#f59e0b20;background:linear-gradient(135deg,#f59e0b08,#ef444408)">03</div>
+        </div>
+
+        <div class="fields-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Study Hours -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap" style="background:linear-gradient(135deg,#f59e0b15,#ef444415);color:#f59e0b">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+            </div>
+            <label for="study" class="field-label">Study Hours / Day</label>
+            <input type="number" id="study" name="Study_Hours" min="0" placeholder="4" class="field-input" autocomplete="off"/>
+            <div class="field-hint">Hours spent studying or working</div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Physical Activity -->
+          <div class="field-card" data-field>
+            <div class="field-icon-wrap" style="background:linear-gradient(135deg,#f59e0b15,#ef444415);color:#f59e0b">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
+            </div>
+            <label for="activity" class="field-label">Physical Activity / Day</label>
+            <input type="number" id="activity" name="Physical_Activity_Hours" min="0" placeholder="1" class="field-input" autocomplete="off"/>
+            <div class="field-hint">Hours of exercise or movement</div>
+            <div class="field-err hidden"></div>
+          </div>
+
+          <!-- Sleep Hours -->
+          <div class="field-card sm:col-span-2 lg:col-span-1" data-field>
+            <div class="field-icon-wrap" style="background:linear-gradient(135deg,#f59e0b15,#ef444415);color:#f59e0b">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+            </div>
+            <div class="range-header">
+              <label for="sleep" class="field-label">Sleep Per Night</label>
+              <div class="range-badge" style="background:linear-gradient(135deg,#f59e0b15,#ef444415);color:#f59e0b;border-color:#f59e0b30">
+                <span id="sleepVal">7</span><span class="range-unit">hrs</span>
+              </div>
+            </div>
+            <div class="range-wrap">
+              <input type="range" id="sleep" name="Sleep_Hours_Per_Night" min="0" max="12" step="0.5" value="7" class="custom-range sleep-range" />
+              <div class="range-track-glow sleep-glow" id="sleepGlow" style="width:58.3%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
+            </div>
+            <div class="range-labels">
+              <span>0</span><span>4</span><span>8</span><span>12</span>
+            </div>
+            <div class="field-err hidden"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Error Banner -->
+      <div id="errorBanner" class="hidden error-banner">
+        <div class="error-icon">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="font-semibold text-red-700 dark:text-red-400 text-sm">Connection Error</p>
+          <p id="errorMsg" class="text-xs text-red-600 dark:text-red-500 mt-0.5">Could not reach the prediction service.</p>
+        </div>
+        <button type="button" id="closeError" class="ml-auto p-1 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
+          <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-wrap">
+        <button type="submit" id="submitBtn" class="submit-btn">
+          <span class="submit-bg"></span>
+          <span class="submit-shimmer"></span>
+          <span id="btnText" class="relative z-10 flex items-center gap-3">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            Assess My Wellness
+          </span>
+          <svg id="btnSpinner" class="w-5 h-5 hidden absolute right-6 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </button>
+        <p class="submit-note">🔒 Your data is processed locally and never stored.</p>
+      </div>
+
+    </form>
+
+    <!-- ── Result Card ── -->
+    <div id="resultCard" class="hidden result-section">
+      <!-- Confetti canvas -->
+      <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+      <div class="result-card">
+        <!-- Animated top bar -->
+        <div id="resultTopBar" class="result-top-bar">
+          <div class="result-bar-shine"></div>
+        </div>
+
+        <div class="result-body">
+          <!-- Left: Score Ring -->
+          <div class="score-ring-wrap">
+            <div class="score-ring-outer">
+              <svg class="score-svg" viewBox="0 0 120 120">
+                <defs>
+                  <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#34d399"/>
+                    <stop offset="100%" stop-color="#059669"/>
+                  </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+                <!-- Background track -->
+                <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="8"
+                  class="text-slate-100 dark:text-slate-700/60"/>
+                <!-- Progress arc -->
+                <circle id="scoreCircle" cx="60" cy="60" r="52" fill="none"
+                  stroke="url(#ringGrad)" stroke-width="8" stroke-linecap="round"
+                  class="score-arc"
+                  style="stroke-dasharray:326.7;stroke-dashoffset:326.7;transform:rotate(-90deg);transform-origin:60px 60px;filter:url(#glow)"/>
+              </svg>
+              <!-- Center content -->
+              <div class="score-center">
+                <span id="scoreDisplay" class="score-num">—</span>
+                <span class="score-denom">/10</span>
+              </div>
+            </div>
+
+            <!-- Decorative rings -->
+            <div class="deco-ring deco-ring-1"></div>
+            <div class="deco-ring deco-ring-2"></div>
+          </div>
+
+          <!-- Right: Details -->
+          <div class="result-details">
+            <div class="result-badge" id="resultBadge">Wellness Score</div>
+            <h3 id="scoreLabel" class="result-headline">—</h3>
+            <p id="scoreDesc" class="result-desc">Your results are ready.</p>
+
+            <!-- Metric pills -->
+            <div id="metricPills" class="metric-pills"></div>
+
+            <!-- Mini bar chart -->
+            <div class="mini-bars" id="miniBars"></div>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations" id="recommendations">
+          <h4 class="rec-title">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
+            Personalized Insights
+          </h4>
+          <div id="recItems" class="rec-items"></div>
+        </div>
+
+        <!-- Footer note -->
+        <div class="result-footer">
+          <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+          <p>This assessment is for informational purposes only and does not constitute medical advice. If you have concerns about your mental health, please speak with a qualified healthcare professional.</p>
+        </div>
+      </div>
+
+      <!-- Reset Button -->
+      <div class="text-center mt-6">
+        <button type="button" id="resetBtn" class="reset-btn">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+          Take Assessment Again
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="relative z-10 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-xl bg-emerald-500 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <span class="font-bold text-slate-700 dark:text-slate-300">MindMetric</span>
+        </div>
+        <p class="text-xs text-slate-400 dark:text-slate-600">© 2025 MindMetric. For research and informational use only.</p>
+        <p class="text-xs text-slate-400 dark:text-slate-600">Powered by machine learning.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
