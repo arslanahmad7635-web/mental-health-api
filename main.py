@@ -4,6 +4,16 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+app = FastAPI()
+# Mount static files
+app.mount("/static", StaticFiles(directory="."), name="static")
+
+@app.get("/")
+def read_index():
+    return FileResponse("live.html")
 
 # Define the allowed top countries globally
 top_countries = [
