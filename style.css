@@ -1168,3 +1168,16 @@ footer {
   .score-ring-outer { width: 150px; height: 150px; }
   .score-num { font-size: 2.1rem; }
 }
+
+/* Toast Notification Visibility & Transitions */
+#sleepOutToast {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out;
+}
+
+#sleepOutToast.translate-y-24 {
+  transform: translateY(6rem);
+}
+
+#sleepOutToast.translate-y-0 {
+  transform: translateY(0);
+}
