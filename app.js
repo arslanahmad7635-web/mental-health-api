@@ -333,7 +333,7 @@ function validateForm() {
 }
 
 /* ─────────────────────────────────────────────
-   9. ERROR BANNER
+   9. ERROR BANNER & SLEEP TOAST
 ───────────────────────────────────────────── */
 function showErrorBanner(msg) {
   const banner = document.getElementById('errorBanner');
@@ -346,6 +346,28 @@ function hideErrorBanner() {
 }
 function initErrorBanner() {
   document.getElementById('closeError').addEventListener('click', hideErrorBanner);
+}
+
+function showSleepOutToast(message) {
+  const toast = document.getElementById('sleepOutToast');
+  const msgEl = document.getElementById('sleepOutMessage');
+  if (!toast || !msgEl) return;
+
+  msgEl.textContent = message;
+  toast.classList.remove('translate-y-24', 'opacity-0');
+  toast.classList.add('translate-y-0', 'opacity-100');
+
+  if (window._toastTimeout) clearTimeout(window._toastTimeout);
+  window._toastTimeout = setTimeout(() => {
+    hideSleepOutToast();
+  }, 6000);
+}
+
+function hideSleepOutToast() {
+  const toast = document.getElementById('sleepOutToast');
+  if (!toast) return;
+  toast.classList.remove('translate-y-0', 'opacity-100');
+  toast.classList.add('translate-y-24', 'opacity-0');
 }
 
 /* ─────────────────────────────────────────────
@@ -448,38 +470,38 @@ function launchConfetti(score) {
 }
 
 /* ─────────────────────────────────────────────
-   12. SCORE THEME
+   12. SCORE THEME & PRAISE/CRITIQUE GENERATOR
 ───────────────────────────────────────────── */
 function getScoreTheme(score) {
   if (score >= 7.5) return {
     color: '#10b981', darkColor: '#34d399',
     gradStart: '#34d399', gradEnd: '#059669',
     label: 'Optimal Wellbeing',
-    desc: 'Your indicators reflect strong mental wellbeing. Maintain your current routines to support sustained focus and emotional resilience.',
+    desc: 'Outstanding results! Your dedication to balanced habits, incredible rest routines, and strong emotional control has built a phenomenal baseline.',
     badge: 'Optimal',
     recs: [
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>', text:"Maintain current mindfulness and cognitive pacing practices." },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>', text:'Sustain physical activity routines to preserve metabolic and mental clarity.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>', text:'Sleep architecture is stable; protect your current circadian schedule.' },
+      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>', text:"Phenomenal job maintaining your habits — keep shining as an inspiration to others!" },
+      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>', text:'Your exceptional discipline with physical health and recovery is paying off brilliantly.' },
+      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>', text:'Flawless circadian rhythm stability. You have truly mastered personal well-being!' },
     ],
   };
   if (score >= 5) return {
     color: '#f59e0b', darkColor: '#fbbf24',
     gradStart: '#fbbf24', gradEnd: '#f59e0b',
     label: 'Moderate Wellbeing',
-    desc: 'Your baseline is stable, but specific dimensions show friction. Targeted adjustments to sleep, screen time, or activity will yield measurable improvements.',
+    desc: 'You are maintaining a steady and healthy path overall. Fine-tuning a few minor routines could easily push you into top-tier wellness.',
     badge: 'Moderate',
     recs: [
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>', text:'Implement a 30-minute reduction in daily screen time to monitor cognitive load.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>', text:'Aim for 7–9 hours of uninterrupted sleep to optimize recovery.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>', text:'Integrate short cognitive reset breaks during extended focus periods.' },
+      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>', text:'Solid effort! Consider a slight 30-minute digital buffer before bed to optimize even further.' },
+      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>', text:'You are doing well with sleep; protecting those 7–9 hours consistently will amplify your focus.' },
+      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>', text:'Great baseline pace — keep integrating short cognitive reset breaks.' },
     ],
   };
   if (score >= 3) return {
     color: '#f97316', darkColor: '#fb923c',
     gradStart: '#fb923c', gradEnd: '#f97316',
     label: 'Below Average',
-    desc: 'Lifestyle patterns indicate elevated stress or disruption. Reviewing daily habits and establishing firmer boundaries is recommended.',
+    desc: 'Lifestyle patterns indicate elevated friction. Reviewing daily habits and establishing firmer boundaries is strongly recommended.',
     badge: 'Attention Needed',
     recs: [
       { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>', text:'Establish rigid screen-free intervals, particularly in the 60 minutes pre-sleep.' },
@@ -502,6 +524,40 @@ function getScoreTheme(score) {
 }
 
 /* ─────────────────────────────────────────────
+   12b. DYNAMIC DIMENSION FEEDBACK
+───────────────────────────────────────────── */
+function getDimensionFeedback(dimName, score) {
+  if (score >= 7.5) {
+    switch(dimName) {
+      case 'Sleep': return "Brilliant sleep habits! Your recovery protocol is top tier.";
+      case 'Physical Activity': return "Fantastic energy! Your commitment to movement is truly commendable.";
+      case 'Screen Time': return "Amazing screen discipline! You own your focus completely.";
+      case 'Stress': return "Wonderful emotional balance and calm composure.";
+      case 'Study Load': return "Magnificent productivity management. Absolute stellar focus!";
+      default: return "Splendid metrics here! Keep up the brilliant work.";
+    }
+  } else if (score >= 5) {
+    switch(dimName) {
+      case 'Sleep': return "Good baseline rest, though subtle tweaks can unlock higher energy.";
+      case 'Physical Activity': return "Solid movement routine — a slight bump will supercharge your vitality.";
+      case 'Screen Time': return "Moderate digital balance; keeping it steady prevents fatigue.";
+      case 'Stress': return "Manageable stress levels. Regular breaks will keep you centered.";
+      case 'Study Load': return "Well-handled workload. Just remember to schedule breathing room.";
+      default: return "Solid foundation overall. Minor tweaks can elevate this further.";
+    }
+  } else {
+    switch(dimName) {
+      case 'Sleep': return "Short sleep is heavily impacting your overall balance.";
+      case 'Physical Activity': return "Low physical activity. Even a brief daily walk makes a massive difference.";
+      case 'Screen Time': return "High screen exposure is draining your cognitive bandwidth.";
+      case 'Stress': return "Elevated stress detected. Prioritize deliberate recovery.";
+      case 'Study Load': return "Heavy academic strain. Watch closely for burnout risks.";
+      default: return "Requires immediate boundary setting and active adjustments.";
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
    13. RENDER RESULT
 ───────────────────────────────────────────── */
 function renderResult(apiResponse) {
@@ -516,6 +572,19 @@ function renderResult(apiResponse) {
 
   const card = document.getElementById('resultCard');
   card.classList.remove('hidden');
+
+  card.animate(
+    [
+      { opacity: '0', transform: 'translateY(24px) scale(0.98)' },
+      { opacity: '1', transform: 'translateY(0) scale(1)' }
+    ],
+    { duration: 550, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' }
+  );
+
+  const sleepHours = parseFloat(document.getElementById('sleep').value) || 7;
+  if (sleepHours < 6) {
+    showSleepOutToast(`Alert: You recorded ${sleepHours}h of sleep. Consider increasing rest to avoid burnout.`);
+  }
 
   const gs = document.querySelector('#ringGrad stop:first-child');
   const ge = document.querySelector('#ringGrad stop:last-child');
@@ -561,7 +630,7 @@ function renderResult(apiResponse) {
   ];
   
   document.getElementById('metricPills').innerHTML = pills.map((m, i) =>
-    `<div class="flex flex-col p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm" style="animation-delay:${i*0.04}s">
+    `<div class="flex flex-col p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transform transition-all duration-300 hover:-translate-y-1" style="animation-delay:${i*0.04}s">
        <span class="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-1">${m.label}</span>
        <span class="text-sm font-bold text-slate-800 dark:text-slate-100">${m.val}</span>
      </div>`
@@ -571,9 +640,10 @@ function renderResult(apiResponse) {
   if (dimContainer && apiDimensions.length > 0) {
     dimContainer.innerHTML = apiDimensions.map((d, i) => {
       const pct   = (d.score / 10 * 100).toFixed(0);
-      const color = d.score >= 7 ? 'bg-emerald-500' : d.score >= 5 ? 'bg-amber-500' : 'bg-rose-500';
+      const color = d.score >= 7.5 ? 'bg-emerald-500' : d.score >= 5 ? 'bg-amber-500' : 'bg-rose-500';
+      const dynamicInsight = getDimensionFeedback(d.dimension, d.score);
       return `
-        <div class="animate-fade-in" style="animation-delay:${i * 0.05}s">
+        <div class="animate-fade-in transition-all duration-300 hover:translate-x-1" style="animation-delay:${i * 0.05}s">
           <div class="flex justify-between items-end mb-1.5">
             <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">${d.dimension}</span>
             <span class="text-xs font-bold text-slate-900 dark:text-white">${d.score}<span class="text-slate-400 font-normal">/10</span></span>
@@ -581,7 +651,7 @@ function renderResult(apiResponse) {
           <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
             <div class="h-full ${color} rounded-full transition-all duration-1000 ease-out" style="width: 0%" data-target-width="${pct}%"></div>
           </div>
-          <p class="text-[10px] text-slate-500 mt-1.5">${d.insight}</p>
+          <p class="text-[10px] text-slate-500 mt-1.5">${dynamicInsight}</p>
         </div>`;
     }).join('');
     
@@ -606,7 +676,7 @@ function renderResult(apiResponse) {
   }
 
   document.getElementById('recItems').innerHTML = theme.recs.map((r, i) =>
-    `<div class="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50" style="animation-delay:${0.1+i*0.08}s">
+    `<div class="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 transform transition-all duration-300 hover:scale-[1.01]" style="animation-delay:${0.1+i*0.08}s">
        <div class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
          ${r.icon}
        </div>
@@ -711,7 +781,17 @@ function initForm() {
 ───────────────────────────────────────────── */
 function initReset() {
   document.getElementById('resetBtn').addEventListener('click', () => {
-    document.getElementById('resultCard').classList.add('hidden');
+    const card = document.getElementById('resultCard');
+    card.animate(
+      [
+        { opacity: '1', transform: 'translateY(0) scale(1)' },
+        { opacity: '0', transform: 'translateY(20px) scale(0.98)' }
+      ],
+      { duration: 300, easing: 'ease-in', fill: 'forwards' }
+    ).onfinish = () => {
+      card.classList.add('hidden');
+    };
+
     document.getElementById('predictForm').reset();
 
     document.getElementById('avgHoursVal').textContent   = '3';
@@ -834,4 +914,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initReset();
   initScrollAnimations();
   initServerConnection();
+
+  const closeToastBtn = document.getElementById('closeToast');
+  if (closeToastBtn) {
+    closeToastBtn.addEventListener('click', hideSleepOutToast);
+  }
 });
