@@ -157,7 +157,7 @@
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
             </div>
             <label for="age" class="field-label">Age</label>
-            <input type="number" id="age" name="Age" min="5" max="100" placeholder="25" class="field-input" autocomplete="off"/>
+            <input type="number" id="age" name="Age" min="5" max="100" placeholder="25" class="field-input" autocomplete="age"/>
             <div class="field-err hidden"></div>
           </div>
 
@@ -167,7 +167,7 @@
             </div>
             <label for="gender" class="field-label">Gender</label>
             <div class="select-wrap">
-              <select id="gender" name="Gender" class="field-select">
+              <select id="gender" name="Gender" class="field-select" autocomplete="sex">
                 <option value="">Select…</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -183,7 +183,7 @@
             </div>
             <label for="country" class="field-label">Country</label>
             <div class="select-wrap">
-              <select id="country" name="Country" class="field-select">
+              <select id="country" name="Country" class="field-select" autocomplete="country">
                 <option value="">Select…</option>
                 <option value="Pakistan">🇵🇰 Pakistan</option>
                 <option value="India">🇮🇳 India</option>
@@ -208,7 +208,7 @@
             </div>
             <label for="academic" class="field-label">Academic Level</label>
             <div class="select-wrap">
-              <select id="academic" name="Academic_Level" class="field-select">
+              <select id="academic" name="Academic_Level" class="field-select" autocomplete="off">
                 <option value="">Select…</option>
                 <option value="High School">High School</option>
                 <option value="Undergraduate">Undergraduate</option>
@@ -224,7 +224,7 @@
             <div class="field-icon-wrap">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
             </div>
-            <label class="field-label">Stress Level</label>
+            <label for="stress" class="field-label">Stress Level</label>
             <div class="stress-chips" id="stressChips" role="group" aria-label="Stress Level">
               <button type="button" class="stress-chip" data-value="Low">😌 Low</button>
               <button type="button" class="stress-chip" data-value="Medium">😐 Medium</button>
@@ -260,11 +260,11 @@
             </div>
             <label for="platform" class="field-label">Most Used Platform</label>
             <div class="select-wrap">
-              <select id="platform" name="Most_Used_Platform" class="field-select">
+              <select id="platform" name="Most_Used_Platform" class="field-select" autocomplete="off">
                 <option value="">Select…</option>
                 <option value="Facebook">📘 Facebook</option>
-                <option value="Instagram">📸 Instagram</option>
-                <option value="Twitter">🐦 Twitter</option>
+                <option value="Instagram">📷 Instagram</option>
+                <option value="Twitter">🐦 Twitter / X</option>
                 <option value="LinkedIn">💼 LinkedIn</option>
                 <option value="Snapchat">👻 Snapchat</option>
                 <option value="TikTok">🎵 TikTok</option>
@@ -280,7 +280,7 @@
             </div>
             <label for="purpose" class="field-label">Purpose of Use</label>
             <div class="select-wrap">
-              <select id="purpose" name="Purpose_Of_Use" class="field-select">
+              <select id="purpose" name="Purpose_Of_Use" class="field-select" autocomplete="off">
                 <option value="">Select…</option>
                 <option value="Socializing">🤝 Socializing</option>
                 <option value="Networking">🌐 Networking</option>
@@ -304,7 +304,7 @@
               </div>
             </div>
             <div class="range-wrap">
-              <input type="range" id="avgHours" name="Avg_Daily_Usage_Hours" min="0" max="24" step="0.5" value="3" class="custom-range" />
+              <input type="range" id="avgHours" name="Avg_Daily_Usage_Hours" min="0" max="24" step="0.5" value="3" class="custom-range" autocomplete="off" />
               <div class="range-track-glow" id="avgHoursGlow" style="width:12.5%"></div>
             </div>
             <div class="range-labels">
@@ -373,7 +373,7 @@
               </div>
             </div>
             <div class="range-wrap">
-              <input type="range" id="sleep" name="Sleep_Hours_Per_Night" min="0" max="12" step="0.5" value="7" class="custom-range sleep-range" />
+              <input type="range" id="sleep" name="Sleep_Hours_Per_Night" min="0" max="12" step="0.5" value="7" class="custom-range sleep-range" autocomplete="off" />
               <div class="range-track-glow sleep-glow" id="sleepGlow" style="width:58.3%;background:linear-gradient(90deg,#f59e0b,#ef4444)"></div>
             </div>
             <div class="range-labels">
