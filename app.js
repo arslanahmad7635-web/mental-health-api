@@ -1,42 +1,44 @@
 /* ═══════════════════════════════════════════════
-   MindMetric — Application Logic
+   MindMetric — Core Execution Framework
    ═══════════════════════════════════════════════ */
 
 'use strict';
 
+// Global Configuration Context
+const CONFIG = {
+  apiBase: 'https://mental-health-api-1-0sm3.onrender.com',
+  totalFields: 12
+};
+
 /* ─────────────────────────────────────────────
-   1. THEME MANAGEMENT
+   1. Dynamic Theme Architecture
 ───────────────────────────────────────────── */
 const ThemeManager = (() => {
-  const html     = document.documentElement;
-  const btn      = document.getElementById('themeToggle');
-  const sunIcon  = document.getElementById('sunIcon');
-  const moonIcon = document.getElementById('moonIcon');
+  const root = document.documentElement;
+  const toggleBtn = document.getElementById('themeToggle');
+  const sun = document.getElementById('sunIcon');
+  const moon = document.getElementById('moonIcon');
 
-  function apply(dark) {
-    if (dark) {
-      html.classList.add('dark');
-      sunIcon.classList.remove('hidden');
-      moonIcon.classList.add('hidden');
+  function applyTheme(isDark) {
+    if (isDark) {
+      root.classList.add('dark');
+      sun.classList.remove('hidden');
+      moon.classList.add('hidden');
     } else {
-      html.classList.remove('dark');
-      sunIcon.classList.add('hidden');
-      moonIcon.classList.remove('hidden');
+      root.classList.remove('dark');
+      sun.classList.add('hidden');
+      moon.classList.remove('hidden');
     }
-    localStorage.setItem('mm_theme', dark ? 'dark' : 'light');
+    localStorage.setItem('mm_theme', isDark ? 'dark' : 'light');
   }
 
   function init() {
-    const stored      = localStorage.getItem('mm_theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    apply(stored === 'dark' || (!stored && prefersDark));
+    const cached = localStorage.getItem('mm_theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(cached === 'dark' || (!cached && systemPrefersDark));
 
-    btn.addEventListener('click', () => {
-      apply(!html.classList.contains('dark'));
-    });
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      if (!localStorage.getItem('mm_theme')) apply(e.matches);
+    toggleBtn.addEventListener('click', () => {
+      applyTheme(!root.classList.contains('dark'));
     });
   }
 
@@ -44,879 +46,745 @@ const ThemeManager = (() => {
 })();
 
 /* ─────────────────────────────────────────────
-   2. PARTICLE BACKGROUND (Mobile Optimized)
+   2. High-Performance Particle Engine
 ───────────────────────────────────────────── */
 const ParticleEngine = (() => {
   const canvas = document.getElementById('particleCanvas');
-  const ctx    = canvas.getContext('2d');
-  let particles = [];
+  let ctx, particles = [], animationId = null;
   let W, H;
 
-  canvas.style.pointerEvents = 'none';
-  canvas.setAttribute('aria-hidden', 'true');
-  canvas.style.zIndex = '0';
-
   function resize() {
-    W = canvas.width  = window.innerWidth;
+    W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
   }
 
-  function mkParticle() {
+  function createParticle() {
     return {
-      x:     Math.random() * W,
-      y:     Math.random() * H,
-      r:     Math.random() * 1.4 + 0.3,
-      vx:    (Math.random() - 0.5) * 0.22,
-      vy:    (Math.random() - 0.5) * 0.22,
-      alpha: Math.random() * 0.35 + 0.04,
-      hue:   [160, 250, 40][Math.floor(Math.random() * 3)],
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.2 + 0.3,
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: (Math.random() - 0.5) * 0.18,
+      alpha: Math.random() * 0.3 + 0.05,
+      hue: [140, 240, 35][Math.floor(Math.random() * 3)]
     };
   }
 
-  function draw() {
+  function render() {
     ctx.clearRect(0, 0, W, H);
     const isDark = document.documentElement.classList.contains('dark');
+    const targetLuminance = isDark ? 70 : 45;
 
-    for (const p of particles) {
+    const len = particles.length;
+    for (let i = 0; i < len; i++) {
+      const p = particles[i];
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue},65%,${isDark ? 72 : 48}%,${p.alpha})`;
+      ctx.fillStyle = `hsla(${p.hue}, 65%, ${targetLuminance}%, ${p.alpha})`;
       ctx.fill();
-      p.x += p.vx; p.y += p.vy;
+
+      p.x += p.vx;
+      p.y += p.vy;
+
       if (p.x < 0) p.x = W;
-      if (p.x > W) p.x = 0;
+      else if (p.x > W) p.x = 0;
       if (p.y < 0) p.y = H;
-      if (p.y > H) p.y = 0;
+      else if (p.y > H) p.y = 0;
     }
-    requestAnimationFrame(draw);
+    animationId = requestAnimationFrame(render);
   }
 
   function init() {
+    // Disable rendering operations entirely on mobile/low-spec architectures
     if (window.innerWidth < 768 || navigator.maxTouchPoints > 0) {
       canvas.style.display = 'none';
       return;
     }
+    ctx = canvas.getContext('2d', { alpha: true });
     resize();
     window.addEventListener('resize', resize, { passive: true });
-    particles = Array.from({ length: 30 }, mkParticle);
-    draw();
+    particles = Array.from({ length: 25 }, createParticle);
+    render();
   }
 
   return { init };
 })();
 
 /* ─────────────────────────────────────────────
-   3. STICKY HEADER
+   3. Centralized Interactive State Controller
 ───────────────────────────────────────────── */
-function initStickyHeader() {
-  const header = document.getElementById('mainHeader');
-  window.addEventListener('scroll', () => {
-    header.classList.toggle('scrolled', window.scrollY > 10);
-  }, { passive: true });
-}
+const StateController = (() => {
+  const elements = {};
 
-/* ─────────────────────────────────────────────
-   4. RANGE INPUTS
-───────────────────────────────────────────── */
-function initRangeInputs() {
-  const avgRange = document.getElementById('avgHours');
-  const avgVal   = document.getElementById('avgHoursVal');
-  const avgGlow  = document.getElementById('avgHoursGlow');
-
-  function updateAvg() {
-    const v = parseFloat(avgRange.value);
-    avgVal.textContent = v;
-    avgGlow.style.width = (v / avgRange.max * 100) + '%';
-    if (v > 8)
-      avgGlow.style.background = 'linear-gradient(90deg,#ef4444,#dc2626)';
-    else if (v > 4)
-      avgGlow.style.background = 'linear-gradient(90deg,#f59e0b,#ef4444)';
-    else
-      avgGlow.style.background = 'linear-gradient(90deg,#10b981,#059669)';
-  }
-  avgRange.addEventListener('input', updateAvg);
-  updateAvg();
-
-  const sleepRange = document.getElementById('sleep');
-  const sleepVal   = document.getElementById('sleepVal');
-  const sleepGlow  = document.getElementById('sleepGlow');
-
-  function updateSleep() {
-    const v = parseFloat(sleepRange.value);
-    sleepVal.textContent = v;
-    sleepGlow.style.width = (v / sleepRange.max * 100) + '%';
-  }
-  sleepRange.addEventListener('input', updateSleep);
-  updateSleep();
-}
-
-/* ─────────────────────────────────────────────
-   5. STRESS CHIPS
-───────────────────────────────────────────── */
-function initStressChips() {
-  const chips  = document.querySelectorAll('.stress-chip');
-  const hidden = document.getElementById('stress');
-
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      chips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      hidden.value = chip.dataset.value;
-      chip.animate(
-        [{ transform: 'scale(0.92)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }],
-        { duration: 260, easing: 'ease' }
-      );
-      clearFieldError(hidden.closest('.field-card'));
-      updateProgress();
+  function init() {
+    const ids = [
+      'age', 'gender', 'country', 'academic', 'stress', 'platform',
+      'purpose', 'avgHours', 'unlocks', 'study', 'activity', 'sleep',
+      'progressBar', 'progressPct', 'submitBtn'
+    ];
+    ids.forEach(id => {
+      elements[id] = document.getElementById(id);
     });
-  });
-}
 
-/* ─────────────────────────────────────────────
-   6. PROGRESS TRACKER
-───────────────────────────────────────────── */
-const TOTAL_FIELDS = 12;
+    // Enforce passive listener paradigms for smooth scroll metrics
+    window.addEventListener('scroll', () => {
+      document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 15);
+    }, { passive: true });
 
-function countFilled() {
-  return [
-    document.getElementById('age').value.trim(),
-    document.getElementById('gender').value,
-    document.getElementById('country').value,
-    document.getElementById('academic').value,
-    document.getElementById('stress').value,
-    document.getElementById('platform').value,
-    document.getElementById('purpose').value,
-    document.getElementById('avgHours').value,
-    document.getElementById('unlocks').value.trim(),
-    document.getElementById('study').value.trim(),
-    document.getElementById('activity').value.trim(),
-    document.getElementById('sleep').value,
-  ].filter(v => v !== '').length;
-}
-
-function updateProgress() {
-  const pct = Math.round((countFilled() / TOTAL_FIELDS) * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressPct').textContent  = pct + '%';
-}
-
-function initProgress() {
-  document.querySelectorAll('input, select').forEach(el => {
-    el.addEventListener('input',  updateProgress);
-    el.addEventListener('change', updateProgress);
-  });
-}
-
-/* ─────────────────────────────────────────────
-   7. FIELD CARD STATES
-───────────────────────────────────────────── */
-function initFieldStates() {
-  document.querySelectorAll('.field-input, .field-select').forEach(el => {
-    ['change', 'blur'].forEach(evt =>
-      el.addEventListener(evt, () => markFilled(el))
-    );
-  });
-}
-
-function markFilled(el) {
-  const card = el.closest('.field-card');
-  if (!card) return;
-  if (el.value.trim()) {
-    card.classList.add('field-filled');
-    card.classList.remove('field-error');
-  } else {
-    card.classList.remove('field-filled');
-  }
-}
-
-/* ─────────────────────────────────────────────
-   8. VALIDATION
-───────────────────────────────────────────── */
-function showFieldError(card, msg) {
-  if (!card) return;
-  card.classList.add('field-error');
-  card.classList.remove('field-filled');
-  const err = card.querySelector('.field-err');
-  if (err) { err.textContent = msg; err.classList.remove('hidden'); }
-  card.animate(
-    [{ transform:'translateX(0)' },{ transform:'translateX(-6px)' },
-     { transform:'translateX(6px)' },{ transform:'translateX(-3px)' },
-     { transform:'translateX(0)' }],
-    { duration: 280, easing: 'ease' }
-  );
-}
-
-function clearFieldError(card) {
-  if (!card) return;
-  card.classList.remove('field-error');
-  const err = card.querySelector('.field-err');
-  if (err) { err.textContent = ''; err.classList.add('hidden'); }
-}
-
-function validateForm() {
-  let valid    = true;
-  let firstErr = null;
-
-  const numFields = [
-    { id: 'age',      label: 'Age',            min: 5,  max: 100 },
-    { id: 'unlocks',  label: 'Daily Unlocks',  min: 0,  max: 500 },
-    { id: 'study',    label: 'Study Hours',    min: 0,  max: 20  },
-    { id: 'activity', label: 'Activity Hours', min: 0,  max: 16  },
-  ];
-
-  numFields.forEach(f => {
-    const el   = document.getElementById(f.id);
-    const card = el.closest('.field-card');
-    const val  = el.value.trim();
-    clearFieldError(card);
-
-    if (!val) {
-      showFieldError(card, `${f.label} is required.`);
-      valid = false; if (!firstErr) firstErr = card; return;
-    }
-    const num = Number(val);
-    if (isNaN(num)) {
-      showFieldError(card, 'Enter a valid number.');
-      valid = false; if (!firstErr) firstErr = card; return;
-    }
-    if (f.min !== undefined && num < f.min) {
-      showFieldError(card, `Minimum is ${f.min}.`);
-      valid = false; if (!firstErr) firstErr = card; return;
-    }
-    if (f.max !== undefined && num > f.max) {
-      showFieldError(card, `Maximum is ${f.max}.`);
-      valid = false; if (!firstErr) firstErr = card; return;
-    }
-    card.classList.add('field-filled');
-  });
-
-  if (valid) {
-    const screen   = parseFloat(document.getElementById('avgHours').value)  || 0;
-    const study    = parseFloat(document.getElementById('study').value)       || 0;
-    const activity = parseFloat(document.getElementById('activity').value)   || 0;
-    const sleep    = parseFloat(document.getElementById('sleep').value)       || 0;
-    const total    = screen + study + activity + sleep;
-
-    if (total > 24) {
-      ['avgHours','study','activity','sleep'].forEach(id => {
-        const el = document.getElementById(id);
-        showFieldError(
-          el.closest('.field-card'),
-          `Hours total ${total.toFixed(1)}h — must be ≤ 24h combined.`
-        );
-        if (!firstErr) firstErr = el.closest('.field-card');
-      });
-      valid = false;
-    }
+    initRangeTrackers();
+    initValidationListeners();
   }
 
-  ['gender','country','academic','platform','purpose'].forEach(id => {
-    const el   = document.getElementById(id);
-    const card = el.closest('.field-card');
-    clearFieldError(card);
-    if (!el.value) {
-      const label = el.closest('.field-card').querySelector('.field-label').textContent;
-      showFieldError(card, `${label.trim()} is required.`);
-      valid = false; if (!firstErr) firstErr = card;
-    }
-  });
+  function initRangeTrackers() {
+    const hoursInput = elements['avgHours'];
+    const hoursGlow = document.getElementById('avgHoursGlow');
+    const hoursVal = document.getElementById('avgHoursVal');
 
-  const stressCard = document.getElementById('stress').closest('.field-card');
-  clearFieldError(stressCard);
-  if (!document.getElementById('stress').value) {
-    showFieldError(stressCard, 'Please select a stress level.');
-    valid = false; if (!firstErr) firstErr = stressCard;
-  }
-
-  if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  return valid;
-}
-
-/* ─────────────────────────────────────────────
-   9. ERROR BANNER & SLEEP TOAST
-───────────────────────────────────────────── */
-function showErrorBanner(msg) {
-  const banner = document.getElementById('errorBanner');
-  document.getElementById('errorMsg').textContent = msg;
-  banner.classList.remove('hidden');
-  banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-function hideErrorBanner() {
-  document.getElementById('errorBanner').classList.add('hidden');
-}
-function initErrorBanner() {
-  document.getElementById('closeError').addEventListener('click', hideErrorBanner);
-}
-
-function showSleepOutToast(message) {
-  const toast = document.getElementById('sleepOutToast');
-  const msgEl = document.getElementById('sleepOutMessage');
-  if (!toast || !msgEl) return;
-
-  msgEl.textContent = message;
-  toast.classList.remove('translate-y-24', 'opacity-0');
-  toast.classList.add('translate-y-0', 'opacity-100');
-
-  if (window._toastTimeout) clearTimeout(window._toastTimeout);
-  window._toastTimeout = setTimeout(() => {
-    hideSleepOutToast();
-  }, 6000);
-}
-
-function hideSleepOutToast() {
-  const toast = document.getElementById('sleepOutToast');
-  if (!toast) return;
-  toast.classList.remove('translate-y-0', 'opacity-100');
-  toast.classList.add('translate-y-24', 'opacity-0');
-}
-
-/* ─────────────────────────────────────────────
-   10. LOADING STATE (With Real-Time Timer)
-───────────────────────────────────────────── */
-let latencyInterval = null;
-
-function setLoading(loading) {
-  const btn      = document.getElementById('submitBtn');
-  const txtWrap  = document.getElementById('btnText');
-  const spinner  = document.getElementById('btnSpinner');
-  const slowHint = document.getElementById('slowHint');
-
-  btn.disabled = loading;
-  spinner.classList.toggle('hidden', !loading);
-
-  if (loading) {
-    const startTime = performance.now();
-    
-    txtWrap.innerHTML = `
-      <div class="flex items-center gap-2">
-        <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span>Analyzing (<span id="liveTimer">0.0</span>s)</span>
-      </div>`;
-
-    const timerEl = document.getElementById('liveTimer');
-    latencyInterval = setInterval(() => {
-      const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-      if (timerEl) timerEl.textContent = elapsed;
-    }, 100);
-
-    window._slowTimer = setTimeout(() => {
-      if (slowHint) slowHint.classList.remove('hidden');
-    }, 4000);
-    
-  } else {
-    clearInterval(latencyInterval);
-    txtWrap.innerHTML = `
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813
-           a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09
-           L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
-      </svg>
-      Assess My Wellness`;
+    function updateHours() {
+      const val = parseFloat(hoursInput.value);
+      hoursVal.textContent = val;
+      hoursGlow.style.width = `${(val / 24) * 100}%`;
       
-    clearTimeout(window._slowTimer);
-    if (slowHint) slowHint.classList.add('hidden');
-  }
-}
-
-/* ─────────────────────────────────────────────
-   11. CONFETTI (Mobile Optimized)
-───────────────────────────────────────────── */
-function launchConfetti(score) {
-  if (score < 5 || window.innerWidth < 768) return;
-  const canvas = document.getElementById('confettiCanvas');
-  const ctx    = canvas.getContext('2d');
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  const count  = score >= 7.5 ? 50 : 30;
-  const pieces = Array.from({ length: count }, () => ({
-    x:     Math.random() * canvas.width,
-    y:     -10 - Math.random() * 60,
-    r:     Math.random() * 6 + 3,
-    color: ['#10b981','#34d399','#6366f1','#f59e0b','#ef4444','#8b5cf6'][Math.floor(Math.random()*6)],
-    vy:    Math.random() * 3 + 1.5,
-    vx:    (Math.random() - 0.5) * 2.5,
-    spin:  (Math.random() - 0.5) * 0.18,
-    angle: 0,
-    shape: Math.random() < 0.5 ? 'circle' : 'rect',
-  }));
-
-  let frame = 0;
-  (function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const alpha = Math.max(0, 1 - frame / 110);
-    pieces.forEach(p => {
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.angle);
-      ctx.fillStyle = p.color;
-      if (p.shape === 'circle') {
-        ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill();
+      // Update warning gradient thresholds smoothly
+      if (val > 8.0) {
+        hoursGlow.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+      } else if (val > 4.0) {
+        hoursGlow.style.background = 'linear-gradient(90deg, #f59e0b, #ef4444)';
       } else {
-        ctx.fillRect(-p.r, -p.r/2, p.r*2, p.r);
+        hoursGlow.style.background = 'linear-gradient(90deg, #10b981, #059669)';
       }
-      ctx.restore();
-      p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.angle += p.spin;
-    });
-    frame++;
-    if (frame < 140) requestAnimationFrame(animate);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
-  })();
-}
-
-/* ─────────────────────────────────────────────
-   12. SCORE THEME & PRAISE/CRITIQUE GENERATOR
-───────────────────────────────────────────── */
-function getScoreTheme(score) {
-  if (score >= 7.5) return {
-    color: '#10b981', darkColor: '#34d399',
-    gradStart: '#34d399', gradEnd: '#059669',
-    label: 'Optimal Wellbeing',
-    desc: 'Outstanding results! Your dedication to balanced habits, incredible rest routines, and strong emotional control has built a phenomenal baseline.',
-    badge: 'Optimal',
-    recs: [
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>', text:"Phenomenal job maintaining your habits — keep shining as an inspiration to others!" },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>', text:'Your exceptional discipline with physical health and recovery is paying off brilliantly.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>', text:'Flawless circadian rhythm stability. You have truly mastered personal well-being!' },
-    ],
-  };
-  if (score >= 5) return {
-    color: '#f59e0b', darkColor: '#fbbf24',
-    gradStart: '#fbbf24', gradEnd: '#f59e0b',
-    label: 'Moderate Wellbeing',
-    desc: 'You are maintaining a steady and healthy path overall. Fine-tuning a few minor routines could easily push you into top-tier wellness.',
-    badge: 'Moderate',
-    recs: [
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>', text:'Solid effort! Consider a slight 30-minute digital buffer before bed to optimize even further.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>', text:'You are doing well with sleep; protecting those 7–9 hours consistently will amplify your focus.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>', text:'Great baseline pace — keep integrating short cognitive reset breaks.' },
-    ],
-  };
-  if (score >= 3) return {
-    color: '#f97316', darkColor: '#fb923c',
-    gradStart: '#fb923c', gradEnd: '#f97316',
-    label: 'Below Average',
-    desc: 'Lifestyle patterns indicate elevated friction. Reviewing daily habits and establishing firmer boundaries is strongly recommended.',
-    badge: 'Attention Needed',
-    recs: [
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>', text:'Establish rigid screen-free intervals, particularly in the 60 minutes pre-sleep.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>', text:'Consider scheduling time to discuss stress factors with a trusted mentor or counselor.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>', text:'Utilize daily journaling to identify and process recurring stress triggers.' },
-    ],
-  };
-  return {
-    color: '#ef4444', darkColor: '#f87171',
-    gradStart: '#f87171', gradEnd: '#dc2626',
-    label: 'Critical Priority',
-    desc: "Data suggests significant distress and lifestyle imbalance. Immediate intervention or consultation with a clinical professional is strongly advised.",
-    badge: 'Critical',
-    recs: [
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>', text:'Initiate contact with a mental health professional or general practitioner.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>', text:'Significantly curtail non-essential digital media consumption immediately.' },
-      { icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>', text:'Treat 8 hours of restorative sleep as a non-negotiable daily medical requirement.' },
-    ],
-  };
-}
-
-/* ─────────────────────────────────────────────
-   12b. DYNAMIC DIMENSION FEEDBACK
-───────────────────────────────────────────── */
-function getDimensionFeedback(dimName, score) {
-  if (score >= 7.5) {
-    switch(dimName) {
-      case 'Sleep': return "Brilliant sleep habits! Your recovery protocol is top tier.";
-      case 'Physical Activity': return "Fantastic energy! Your commitment to movement is truly commendable.";
-      case 'Screen Time': return "Amazing screen discipline! You own your focus completely.";
-      case 'Stress': return "Wonderful emotional balance and calm composure.";
-      case 'Study Load': return "Magnificent productivity management. Absolute stellar focus!";
-      default: return "Splendid metrics here! Keep up the brilliant work.";
     }
-  } else if (score >= 5) {
-    switch(dimName) {
-      case 'Sleep': return "Good baseline rest, though subtle tweaks can unlock higher energy.";
-      case 'Physical Activity': return "Solid movement routine — a slight bump will supercharge your vitality.";
-      case 'Screen Time': return "Moderate digital balance; keeping it steady prevents fatigue.";
-      case 'Stress': return "Manageable stress levels. Regular breaks will keep you centered.";
-      case 'Study Load': return "Well-handled workload. Just remember to schedule breathing room.";
-      default: return "Solid foundation overall. Minor tweaks can elevate this further.";
+    hoursInput.addEventListener('input', updateHours);
+    updateHours();
+
+    const sleepInput = elements['sleep'];
+    const sleepGlow = document.getElementById('sleepGlow');
+    const sleepVal = document.getElementById('sleepVal');
+
+    function updateSleep() {
+      const val = parseFloat(sleepInput.value);
+      sleepVal.textContent = val;
+      sleepGlow.style.width = `${(val / 12) * 100}%`;
     }
-  } else {
-    switch(dimName) {
-      case 'Sleep': return "Short sleep is heavily impacting your overall balance.";
-      case 'Physical Activity': return "Low physical activity. Even a brief daily walk makes a massive difference.";
-      case 'Screen Time': return "High screen exposure is draining your cognitive bandwidth.";
-      case 'Stress': return "Elevated stress detected. Prioritize deliberate recovery.";
-      case 'Study Load': return "Heavy academic strain. Watch closely for burnout risks.";
-      default: return "Requires immediate boundary setting and active adjustments.";
-    }
-  }
-}
-
-/* ─────────────────────────────────────────────
-   13. RENDER RESULT
-───────────────────────────────────────────── */
-function renderResult(apiResponse) {
-  const score   = typeof apiResponse === 'number' ? apiResponse : apiResponse.predicted_score;
-  const clamped = Math.min(Math.max(score, 0), 10);
-  const theme   = getScoreTheme(clamped);
-  const isDark  = document.documentElement.classList.contains('dark');
-
-  const apiNote       = apiResponse.note        || theme.desc;
-  const apiDimensions = apiResponse.dimensions  || [];
-  const assessedAt    = apiResponse.assessed_at || null;
-
-  const card = document.getElementById('resultCard');
-  card.classList.remove('hidden');
-
-  card.animate(
-    [
-      { opacity: '0', transform: 'translateY(24px) scale(0.98)' },
-      { opacity: '1', transform: 'translateY(0) scale(1)' }
-    ],
-    { duration: 550, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' }
-  );
-
-  const sleepHours = parseFloat(document.getElementById('sleep').value) || 7;
-  if (sleepHours < 6) {
-    showSleepOutToast(`Alert: You recorded ${sleepHours}h of sleep. Consider increasing rest to avoid burnout.`);
+    sleepInput.addEventListener('input', updateSleep);
+    updateSleep();
   }
 
-  const gs = document.querySelector('#ringGrad stop:first-child');
-  const ge = document.querySelector('#ringGrad stop:last-child');
-  if (gs) gs.setAttribute('stop-color', theme.gradStart);
-  if (ge) ge.setAttribute('stop-color', theme.gradEnd);
-
-  const circle = document.getElementById('scoreCircle');
-  const circum = 326.7;
-  setTimeout(() => {
-    circle.style.strokeDashoffset = circum - (clamped / 10) * circum;
-  }, 120);
-
-  const scoreDisplay = document.getElementById('scoreDisplay');
-  const t0  = performance.now();
-  const dur = 1300;
-  (function countUp(now) {
-    const p = Math.min((now - t0) / dur, 1);
-    const e = 1 - Math.pow(1 - p, 3);
-    scoreDisplay.textContent = (e * clamped).toFixed(1);
-    if (p < 1) requestAnimationFrame(countUp);
-    else scoreDisplay.textContent = clamped.toFixed(1);
-  })(t0);
-  scoreDisplay.style.color = isDark ? theme.darkColor : theme.color;
-
-  const badge = document.getElementById('resultBadge');
-  badge.textContent          = theme.badge;
-  badge.style.background   = `${theme.color}18`;
-  badge.style.borderColor  = `${theme.color}35`;
-  badge.style.color        = isDark ? theme.darkColor : theme.color;
-
-  const headline = document.getElementById('scoreLabel');
-  headline.textContent = theme.label;
-  
-  document.getElementById('scoreDesc').textContent = apiNote;
-
-  const pills = [
-    { label:'Sleep',    val: document.getElementById('sleep').value + 'h' },
-    { label:'Screen',   val: document.getElementById('avgHours').value + 'h' },
-    { label:'Stress',   val: document.getElementById('stress').value },
-    { label:'Activity', val: document.getElementById('activity').value + 'h' },
-    { label:'Study',    val: document.getElementById('study').value + 'h' },
-    { label:'Unlocks',  val: document.getElementById('unlocks').value },
-  ];
-  
-  document.getElementById('metricPills').innerHTML = pills.map((m, i) =>
-    `<div class="flex flex-col p-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transform transition-all duration-300 hover:-translate-y-1" style="animation-delay:${i*0.04}s">
-       <span class="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-1">${m.label}</span>
-       <span class="text-sm font-bold text-slate-800 dark:text-slate-100">${m.val}</span>
-     </div>`
-  ).join('');
-
-  const dimContainer = document.getElementById('dimensionInsights');
-  if (dimContainer && apiDimensions.length > 0) {
-    dimContainer.innerHTML = apiDimensions.map((d, i) => {
-      const pct   = (d.score / 10 * 100).toFixed(0);
-      const color = d.score >= 7.5 ? 'bg-emerald-500' : d.score >= 5 ? 'bg-amber-500' : 'bg-rose-500';
-      const dynamicInsight = getDimensionFeedback(d.dimension, d.score);
-      return `
-        <div class="animate-fade-in transition-all duration-300 hover:translate-x-1" style="animation-delay:${i * 0.05}s">
-          <div class="flex justify-between items-end mb-1.5">
-            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">${d.dimension}</span>
-            <span class="text-xs font-bold text-slate-900 dark:text-white">${d.score}<span class="text-slate-400 font-normal">/10</span></span>
-          </div>
-          <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-            <div class="h-full ${color} rounded-full transition-all duration-1000 ease-out" style="width: 0%" data-target-width="${pct}%"></div>
-          </div>
-          <p class="text-[10px] text-slate-500 mt-1.5">${dynamicInsight}</p>
-        </div>`;
-    }).join('');
-    
-    dimContainer.classList.remove('hidden');
-    
-    setTimeout(() => {
-      dimContainer.querySelectorAll('.transition-all').forEach(bar => {
-        bar.style.width = bar.getAttribute('data-target-width');
-      });
-    }, 100);
-  } else if (dimContainer) {
-    dimContainer.classList.add('hidden');
-  }
-
-  const tsEl = document.getElementById('assessedAt');
-  if (tsEl && assessedAt) {
-    const dt = new Date(assessedAt);
-    tsEl.textContent = 'Assessed ' + dt.toLocaleString(undefined, {
-      dateStyle: 'medium', timeStyle: 'short'
-    });
-    tsEl.classList.remove('hidden');
-  }
-
-  document.getElementById('recItems').innerHTML = theme.recs.map((r, i) =>
-    `<div class="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 transform transition-all duration-300 hover:scale-[1.01]" style="animation-delay:${0.1+i*0.08}s">
-       <div class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
-         ${r.icon}
-       </div>
-       <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${r.text}</p>
-     </div>`
-  ).join('');
-
-  document.getElementById('resultTopBar').style.background =
-    `linear-gradient(90deg,${theme.gradStart},${theme.gradEnd},${theme.color})`;
-
-  setTimeout(() => launchConfetti(clamped), 500);
-  setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'start' }), 250);
-}
-
-/* ─────────────────────────────────────────────
-   14. BUILD PAYLOAD & CACHING HELPERS
-───────────────────────────────────────────── */
-function buildPayload() {
-  return {
-    Age:                     parseInt(document.getElementById('age').value),
-    Gender:                  document.getElementById('gender').value,
-    Country:                 document.getElementById('country').value,
-    Academic_Level:          document.getElementById('academic').value,
-    Most_Used_Platform:      document.getElementById('platform').value,
-    Purpose_Of_Use:          document.getElementById('purpose').value,
-    Avg_Daily_Usage_Hours:   parseFloat(document.getElementById('avgHours').value),
-    Daily_Unlocks:           parseInt(document.getElementById('unlocks').value),
-    Study_Hours:             parseInt(document.getElementById('study').value),
-    Physical_Activity_Hours: parseInt(document.getElementById('activity').value),
-    Sleep_Hours_Per_Night:   parseFloat(document.getElementById('sleep').value),
-    Stress_Level:            document.getElementById('stress').value,
-  };
-}
-
-function getCachedPrediction(payload) {
-  const cacheKey = 'mm_cache_' + JSON.stringify(payload);
-  const cached = localStorage.getItem(cacheKey);
-  return cached ? JSON.parse(cached) : null;
-}
-
-function setCachedPrediction(payload, data) {
-  const cacheKey = 'mm_cache_' + JSON.stringify(payload);
-  localStorage.setItem(cacheKey, JSON.stringify(data));
-}
-
-/* ─────────────────────────────────────────────
-   15. FORM SUBMISSION
-───────────────────────────────────────────── */
-function initForm() {
-  document.getElementById('predictForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    hideErrorBanner();
-    if (!validateForm()) return;
-
-    const payload = buildPayload();
-    const cachedData = getCachedPrediction(payload);
-
-    if (cachedData) {
-      renderResult(cachedData);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch('https://mental-health-api-1-0sm3.onrender.com/predict', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        let detail = `Server error ${res.status}`;
-        try {
-          const err = await res.json();
-          if (err.detail) detail = typeof err.detail === 'string'
-            ? err.detail : JSON.stringify(err.detail);
-        } catch(_) {}
-        throw new Error(detail);
+  function calculateProgress() {
+    const monitored = [
+      'age', 'gender', 'country', 'academic', 'stress', 'platform',
+      'purpose', 'avgHours', 'unlocks', 'study', 'activity', 'sleep'
+    ];
+    let filled = 0;
+    monitored.forEach(id => {
+      if (elements[id] && elements[id].value.trim() !== '') {
+        filled++;
       }
+    });
 
-      const data = await res.json();
-      if (typeof data.predicted_score === 'undefined')
-        throw new Error('Unexpected response format from API.');
+    const completionRate = Math.round((filled / CONFIG.totalFields) * 100);
+    elements['progressBar'].style.width = `${completionRate}%`;
+    elements['progressPct'].textContent = `${completionRate}%`;
+  }
 
-      setCachedPrediction(payload, data);
-      renderResult(data);
+  function initValidationListeners() {
+    const inputs = document.querySelectorAll('.field-input, .field-select');
+    inputs.forEach(el => {
+      ['change', 'blur', 'input'].forEach(evt => {
+        el.addEventListener(evt, () => {
+          const card = el.closest('.field-card');
+          if (el.value.trim()) {
+            card.classList.add('field-filled');
+            card.classList.remove('field-error');
+            const err = card.querySelector('.field-err');
+            if (err) err.classList.add('hidden');
+          } else {
+            card.classList.remove('field-filled');
+          }
+          calculateProgress();
+        });
+      });
+    });
 
-    } catch (err) {
-      showErrorBanner(
-        err instanceof TypeError
-          ? 'Could not reach the prediction service. Please try again shortly.'
-          : err.message
-      );
-    } finally {
-      setLoading(false);
-    }
-  });
-}
+    // Stress Chip Bindings
+    const chips = document.querySelectorAll('.stress-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        elements['stress'].value = chip.dataset.value;
+
+        const parent = chip.closest('.field-card');
+        parent.classList.add('field-filled');
+        parent.classList.remove('field-error');
+        const err = parent.querySelector('.field-err');
+        if (err) err.classList.add('hidden');
+
+        calculateProgress();
+      });
+    });
+  }
+
+  return { init, calculateProgress, elements };
+})();
 
 /* ─────────────────────────────────────────────
-   16. RESET
+   4. Validation & Error Framework
 ───────────────────────────────────────────── */
-function initReset() {
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    const card = document.getElementById('resultCard');
+const Validator = (() => {
+  function showFieldError(card, msg) {
+    if (!card) return;
+    card.classList.add('field-error');
+    card.classList.remove('field-filled');
+    const err = card.querySelector('.field-err');
+    if (err) {
+      err.textContent = msg;
+      err.classList.remove('hidden');
+    }
     card.animate(
       [
-        { opacity: '1', transform: 'translateY(0) scale(1)' },
-        { opacity: '0', transform: 'translateY(20px) scale(0.98)' }
+        { transform: 'translate3d(0, 0, 0)' },
+        { transform: 'translate3d(-5px, 0, 0)' },
+        { transform: 'translate3d(5px, 0, 0)' },
+        { transform: 'translate3d(0, 0, 0)' }
       ],
-      { duration: 300, easing: 'ease-in', fill: 'forwards' }
-    ).onfinish = () => {
-      card.classList.add('hidden');
-    };
-
-    document.getElementById('predictForm').reset();
-
-    document.getElementById('avgHoursVal').textContent   = '3';
-    document.getElementById('sleepVal').textContent     = '7';
-    document.getElementById('avgHoursGlow').style.width = '12.5%';
-    document.getElementById('avgHoursGlow').style.background = 'linear-gradient(90deg,#10b981,#059669)';
-    document.getElementById('sleepGlow').style.width   = '58.3%';
-
-    document.querySelectorAll('.stress-chip').forEach(c => c.classList.remove('active'));
-    document.getElementById('stress').value = '';
-
-    document.querySelectorAll('.field-card').forEach(c =>
-      c.classList.remove('field-filled', 'field-error')
+      { duration: 240, easing: 'ease' }
     );
-    document.querySelectorAll('.field-err').forEach(e => {
-      e.textContent = ''; e.classList.add('hidden');
-    });
+  }
 
-    document.getElementById('progressBar').style.width  = '0%';
-    document.getElementById('progressPct').textContent  = '0%';
+  function validate() {
+    let isValid = true;
+    let focusTarget = null;
 
-    const dimContainer = document.getElementById('dimensionInsights');
-    if (dimContainer) {
-      dimContainer.classList.add('hidden');
-      dimContainer.innerHTML = '';
-    }
-    const tsEl = document.getElementById('assessedAt');
-    if (tsEl) tsEl.classList.add('hidden');
+    const numericValidations = [
+      { id: 'age', label: 'Age', min: 5, max: 100 },
+      { id: 'unlocks', label: 'Daily Unlocks', min: 0, max: 500 },
+      { id: 'study', label: 'Study Hours', min: 0, max: 20 },
+      { id: 'activity', label: 'Activity Hours', min: 0, max: 16 }
+    ];
 
-    hideErrorBanner();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-}
+    numericValidations.forEach(item => {
+      const el = StateController.elements[item.id];
+      const card = el.closest('.field-card');
+      const val = el.value.trim();
 
-/* ─────────────────────────────────────────────
-   17. LIVE VALIDATION CLEAR
-───────────────────────────────────────────── */
-function initLiveValidationClear() {
-  document.querySelectorAll('.field-input, .field-select').forEach(el => {
-    ['input','change'].forEach(evt =>
-      el.addEventListener(evt, () => {
-        clearFieldError(el.closest('.field-card'));
-        updateProgress();
-      })
-    );
-  });
-}
+      if (!val) {
+        showFieldError(card, `${item.label} is required.`);
+        isValid = false;
+        if (!focusTarget) focusTarget = card;
+        return;
+      }
 
-/* ─────────────────────────────────────────────
-   18. SCROLL ANIMATIONS
-───────────────────────────────────────────── */
-function initScrollAnimations() {
-  if (!('IntersectionObserver' in window)) return;
-
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const i  = parseInt(el.dataset.animIdx || 0);
-        el.animate(
-          [
-            { opacity: '0', transform: 'translateY(18px)' },
-            { opacity: '1', transform: 'translateY(0)'   },
-          ],
-          { duration: 420, delay: i * 45, easing: 'cubic-bezier(0.34,1.56,0.64,1)', fill: 'forwards' }
-        );
-        obs.unobserve(el);
+      const num = Number(val);
+      if (isNaN(num) || num < item.min || num > item.max) {
+        showFieldError(card, `Must be a valid integer between ${item.min} and ${item.max}.`);
+        isValid = false;
+        if (!focusTarget) focusTarget = card;
       }
     });
-  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 
-  document.querySelectorAll('.field-card').forEach((card, i) => {
-    card.dataset.animIdx = i;
-    obs.observe(card);
-  });
-}
+    // Time budget check
+    if (isValid) {
+      const screen = parseFloat(StateController.elements['avgHours'].value) || 0;
+      const study = parseFloat(StateController.elements['study'].value) || 0;
+      const activity = parseFloat(StateController.elements['activity'].value) || 0;
+      const sleep = parseFloat(StateController.elements['sleep'].value) || 0;
+      const totalAllocated = screen + study + activity + sleep;
+
+      if (totalAllocated > 24) {
+        ['avgHours', 'study', 'activity', 'sleep'].forEach(id => {
+          const card = StateController.elements[id].closest('.field-card');
+          showFieldError(card, `Allocation total is ${totalAllocated.toFixed(1)}h. Must not exceed 24h.`);
+        });
+        isValid = false;
+        focusTarget = StateController.elements['avgHours'].closest('.field-card');
+      }
+    }
+
+    // Select box validation
+    const selectFields = ['gender', 'country', 'academic', 'platform', 'purpose'];
+    selectFields.forEach(id => {
+      const el = StateController.elements[id];
+      const card = el.closest('.field-card');
+      if (!el.value) {
+        showFieldError(card, 'Please select an option.');
+        isValid = false;
+        if (!focusTarget) focusTarget = card;
+      }
+    });
+
+    // Stress Chip validation
+    const stressVal = StateController.elements['stress'].value;
+    if (!stressVal) {
+      const card = StateController.elements['stress'].closest('.field-card');
+      showFieldError(card, 'Please select a stress level.');
+      isValid = false;
+      if (!focusTarget) focusTarget = card;
+    }
+
+    if (focusTarget) {
+      focusTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return isValid;
+  }
+
+  return { validate };
+})();
 
 /* ─────────────────────────────────────────────
-   19. SERVER CONNECTION (PRE-WARM & KEEP-ALIVE)
+   5. Dynamic Response Renderer
 ───────────────────────────────────────────── */
-async function initServerConnection() {
-  const indicator = document.getElementById('serverStatus');
-  
-  if (indicator) {
-    indicator.textContent = 'Connecting to backend API...';
-    indicator.classList.remove('hidden');
+const ResultRenderer = (() => {
+  function getScoreTheme(score) {
+    if (score >= 8.0) return {
+      color: '#10b981', text: '#34d399', label: 'Optimal Wellbeing',
+      gradient: ['#34d399', '#059669'],
+      recs: ["Perfect dynamic work-rest limits maintained. Keep this baseline steady.", "Promote current strategy parameters to peers."]
+    };
+    if (score >= 5.0) return {
+      color: '#fbbf24', text: '#f59e0b', label: 'Moderate Wellbeing',
+      gradient: ['#fbbf24', '#f59e0b'],
+      recs: ["Implement 30-minute cognitive screen-free buffers post sunset.", "Establish routine physical output patterns."]
+    };
+    if (score >= 3.0) return {
+      color: '#fb923c', text: '#f97316', label: 'Below Average',
+      gradient: ['#fb923c', '#f97316'],
+      recs: ["Strictly curtail visual social network exposure under 3h daily.", "Re-establish consistent recovery window allocations."]
+    };
+    return {
+      color: '#f87171', text: '#ef4444', label: 'Critical Priority',
+      gradient: ['#f87171', '#dc2626'],
+      recs: ["Treatment of 8 hours sleep as a non-negotiable critical protocol.", "Engage with psychological or medical guidance networks immediately."]
+    };
   }
 
-  try {
-    await fetch('https://mental-health-api-1-0sm3.onrender.com/health');
-    if (indicator) {
-      indicator.textContent = 'Server connection established ✓';
-      setTimeout(() => indicator.classList.add('hidden'), 2500);
-    }
-  } catch (error) {
-    if (indicator) {
-      indicator.textContent = 'Server is waking up — first analysis may be slower';
+  function getLocalDimensionFeedback(dimensionName, val) {
+    if (val >= 8.0) {
+      switch (dimensionName) {
+        case 'Sleep': return "Incredible sleep optimization. Sleep cycle is exceptionally healthy.";
+        case 'Physical Activity': return "Outstanding somatic movement habits.";
+        case 'Screen Time': return "Superb control of digital allocation variables.";
+        default: return "Excellent metric baseline.";
+      }
+    } else if (val >= 5.0) {
+      return `Adequate ${dimensionName.toLowerCase()} indicators. Dynamic adjustments could improve efficiency.`;
+    } else {
+      return `Attention Needed: Negatively impacting your standard wellness levels.`;
     }
   }
 
-  setInterval(() => {
-    fetch('https://mental-health-api-1-0sm3.onrender.com/health').catch(() => {});
-  }, 10 * 60 * 1000); 
-}
+  function render(response) {
+    const rawScore = response.predicted_score;
+    const score = Math.min(Math.max(rawScore, 0.0), 10.0);
+    const theme = getScoreTheme(score);
+    const isDark = document.documentElement.classList.contains('dark');
+
+    const resultCard = document.getElementById('resultCard');
+    resultCard.classList.remove('hidden');
+
+    // Trigger GPU-Accelerated entry transition
+    resultCard.style.willChange = 'transform, opacity';
+    resultCard.animate([
+      { opacity: 0, transform: 'translate3d(0, 20px, 0)' },
+      { opacity: 1, transform: 'translate3d(0, 0, 0)' }
+    ], { duration: 400, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+
+    // Handle Sleep-specific warnings (including strictly 0 hours)
+    const sleepValue = parseFloat(StateController.elements['sleep'].value) || 0;
+    if (sleepValue === 0) {
+      showSleepToast("EMERGENCY ALERT: 0h sleep recorded. Total sleep deprivation leads to severe physical hazards.");
+    } else if (sleepValue < 6.0) {
+      showSleepToast(`Warning: Rest duration (${sleepValue}h) is below the recovery threshold.`);
+    } else {
+      hideSleepToast();
+    }
+
+    // Dynamic Gradient updates on main SVG layout
+    const stop1 = document.querySelector('#ringGrad stop:first-child');
+    const stop2 = document.querySelector('#ringGrad stop:last-child');
+    if (stop1) stop1.setAttribute('stop-color', theme.gradient[0]);
+    if (stop2) stop2.setAttribute('stop-color', theme.gradient[1]);
+
+    const circle = document.getElementById('scoreCircle');
+    const circumference = 326.7;
+    // Batch rendering offset updates to prevent visual stuttering
+    requestAnimationFrame(() => {
+      circle.style.strokeDashoffset = circumference - (score / 10) * circumference;
+    });
+
+    // Score Counter interpolation
+    const display = document.getElementById('scoreDisplay');
+    const duration = 1200, startTime = performance.now();
+    
+    function updateCounter(now) {
+      const elapsed = Math.min((now - startTime) / duration, 1);
+      const easeVal = 1 - Math.pow(1 - elapsed, 3); // Cubic easeOut
+      display.textContent = (easeVal * score).toFixed(1);
+      if (elapsed < 1) requestAnimationFrame(updateCounter);
+      else display.textContent = score.toFixed(1);
+    }
+    requestAnimationFrame(updateCounter);
+    display.style.color = isDark ? theme.text : theme.color;
+
+    // Set header states
+    const badge = document.getElementById('resultBadge');
+    badge.textContent = theme.label;
+    badge.style.background = `${theme.color}15`;
+    badge.style.borderColor = `${theme.color}30`;
+    badge.style.color = isDark ? theme.text : theme.color;
+
+    document.getElementById('scoreLabel').textContent = response.score_label || theme.label;
+    document.getElementById('scoreDesc').textContent = response.note;
+
+    // Metric visualizer pills batch rendering
+    const trackedPills = [
+      { label: 'Sleep', val: `${sleepValue}h` },
+      { label: 'Screen', val: `${StateController.elements['avgHours'].value}h` },
+      { label: 'Stress', val: StateController.elements['stress'].value },
+      { label: 'Activity', val: `${StateController.elements['activity'].value}h` },
+      { label: 'Study', val: `${StateController.elements['study'].value}h` },
+      { label: 'Unlocks', val: StateController.elements['unlocks'].value }
+    ];
+
+    document.getElementById('metricPills').innerHTML = trackedPills.map((p, idx) => `
+      <div class="flex flex-col p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm" style="animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: ${idx * 0.03}s">
+        <span class="text-[9px] uppercase tracking-wider text-slate-500 font-extrabold mb-0.5">${p.label}</span>
+        <span class="text-xs font-black text-slate-800 dark:text-slate-100">${p.val}</span>
+      </div>
+    `).join('');
+
+    // Dynamic Render dimensions returned from microservices validation
+    const container = document.getElementById('dimensionInsights');
+    if (response.dimensions && response.dimensions.length > 0) {
+      container.innerHTML = response.dimensions.map((dim, idx) => {
+        const pct = (dim.score / 10 * 100).toFixed(0);
+        const markerColor = dim.score >= 7.5 ? 'bg-emerald-500' : dim.score >= 5.0 ? 'bg-amber-500' : 'bg-rose-500';
+        const dynamicFeedback = getLocalDimensionFeedback(dim.dimension, dim.score);
+        
+        return `
+          <div class="space-y-1" style="animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: ${idx * 0.04}s">
+            <div class="flex justify-between items-end">
+              <span class="text-xs font-extrabold text-slate-700 dark:text-slate-300">${dim.dimension}</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white">${dim.score}<span class="text-slate-400 font-medium text-[10px]">/10</span></span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div class="h-full ${markerColor} rounded-full" style="width: 0%; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1)" data-pct="${pct}"></div>
+            </div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">${dim.insight || dynamicFeedback}</p>
+          </div>
+        `;
+      }).join('');
+      container.classList.remove('hidden');
+
+      // Trigger width animation in next frame layout calculation
+      requestAnimationFrame(() => {
+        container.querySelectorAll('[data-pct]').forEach(bar => {
+          bar.style.width = `${bar.dataset.pct}%`;
+        });
+      });
+    }
+
+    // Set assessment clock timestamp
+    if (response.assessed_at) {
+      const stamp = document.getElementById('assessedAt');
+      stamp.textContent = `Assessed: ${new Date(response.assessed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      stamp.classList.remove('hidden');
+    }
+
+    // Target recommendations
+    const recsList = response.note && score < 3.0 ? [response.note, ...theme.recs] : theme.recs;
+    document.getElementById('recItems').innerHTML = recsList.map((rec, idx) => `
+      <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/50" style="animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: ${idx * 0.05}s">
+        <div class="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-300 font-semibold leading-relaxed">${rec}</p>
+      </div>
+    `).join('');
+
+    // Trigger visual confetti celebrations on high performance metrics
+    if (score >= 7.5) {
+      triggerConfetti();
+    }
+
+    // Ensure smooth viewport focus on entry bounds
+    setTimeout(() => {
+      resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }
+
+  function showSleepToast(msg) {
+    const toast = document.getElementById('sleepOutToast');
+    document.getElementById('sleepOutMessage').textContent = msg;
+    toast.classList.remove('translate-y-24', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+  }
+
+  function hideSleepToast() {
+    const toast = document.getElementById('sleepOutToast');
+    toast.classList.remove('translate-y-0', 'opacity-100');
+    toast.classList.add('translate-y-24', 'opacity-0');
+  }
+
+  function triggerConfetti() {
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const context = confettiCanvas.getContext('2d');
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+
+    const colors = ['#10b981', '#34d399', '#6366f1', '#fbbf24', '#f87171'];
+    const particles = Array.from({ length: 45 }, () => ({
+      x: Math.random() * confettiCanvas.width,
+      y: -20,
+      r: Math.random() * 5 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vy: Math.random() * 4 + 2,
+      vx: (Math.random() - 0.5) * 3,
+      opacity: 1
+    }));
+
+    function step() {
+      context.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let alive = false;
+      particles.forEach(p => {
+        if (p.opacity > 0) {
+          alive = true;
+          context.beginPath();
+          context.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          context.fillStyle = p.color;
+          context.globalAlpha = p.opacity;
+          context.fill();
+
+          p.x += p.vx;
+          p.y += p.vy;
+          p.opacity -= 0.006;
+        }
+      });
+      context.globalAlpha = 1.0;
+      if (alive) requestAnimationFrame(step);
+      else context.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+    step();
+  }
+
+  return { render, hideSleepToast };
+})();
 
 /* ─────────────────────────────────────────────
-   20. BOOT
+   6. Connection, Warm-up & Lifecycles
+───────────────────────────────────────────── */
+const ConnectionEngine = (() => {
+  const statusEl = document.getElementById('serverStatus');
+  let healthCheckerId = null;
+
+  async function checkWarmup() {
+    statusEl.textContent = 'Synchronizing secure server gateway...';
+    statusEl.classList.remove('hidden');
+
+    try {
+      const response = await fetch(`${CONFIG.apiBase}/health`, { mode: 'cors' });
+      if (response.ok) {
+        statusEl.textContent = 'Security handshake successful ✓';
+        statusEl.classList.add('text-emerald-500');
+        setTimeout(() => statusEl.classList.add('hidden'), 3000);
+      }
+    } catch (_) {
+      statusEl.textContent = 'Inference server waking up — Handshake pending...';
+      statusEl.classList.add('text-amber-500');
+    }
+  }
+
+  function startKeepAlive() {
+    // Keep container metrics alive via 5-minute health check pings
+    healthCheckerId = setInterval(async () => {
+      try {
+        await fetch(`${CONFIG.apiBase}/health`, { mode: 'cors' });
+      } catch (_) {}
+    }, 5 * 60 * 1000);
+  }
+
+  return { checkWarmup, startKeepAlive };
+})();
+
+/* ─────────────────────────────────────────────
+   7. Form Submission Lifecycle Controller
+───────────────────────────────────────────── */
+const FormManager = (() => {
+  let isSubmitting = false;
+  let timerInterval = null;
+
+  function setLoading(state) {
+    isSubmitting = state;
+    const btn = StateController.elements['submitBtn'];
+    const textWrap = document.getElementById('btnText');
+    const slowHint = document.getElementById('slowHint');
+
+    btn.disabled = state;
+    if (state) {
+      const start = performance.now();
+      textWrap.innerHTML = `
+        <span class="flex items-center gap-2">
+          Analyzing Framework (<span id="liveTimer">0.0</span>s)
+        </span>
+      `;
+      const liveTimer = document.getElementById('liveTimer');
+      timerInterval = setInterval(() => {
+        liveTimer.textContent = ((performance.now() - start) / 1000).toFixed(1);
+      }, 100);
+
+      window._slowTimerFallback = setTimeout(() => {
+        slowHint.classList.remove('hidden');
+      }, 4000);
+    } else {
+      clearInterval(timerInterval);
+      clearTimeout(window._slowTimerFallback);
+      slowHint.classList.add('hidden');
+      textWrap.innerHTML = `
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813 a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+        </svg>
+        Assess My Wellness
+      `;
+    }
+  }
+
+  function buildPayload() {
+    return {
+      Age: parseInt(StateController.elements['age'].value, 10),
+      Gender: StateController.elements['gender'].value,
+      Country: StateController.elements['country'].value,
+      Academic_Level: StateController.elements['academic'].value,
+      Most_Used_Platform: StateController.elements['platform'].value,
+      Purpose_Of_Use: StateController.elements['purpose'].value,
+      Avg_Daily_Usage_Hours: parseFloat(StateController.elements['avgHours'].value),
+      Daily_Unlocks: parseInt(StateController.elements['unlocks'].value, 10),
+      Study_Hours: parseInt(StateController.elements['study'].value, 10),
+      Physical_Activity_Hours: parseInt(StateController.elements['activity'].value, 10),
+      Sleep_Hours_Per_Night: parseFloat(StateController.elements['sleep'].value),
+      Stress_Level: StateController.elements['stress'].value
+    };
+  }
+
+  function getCacheKey(payload) {
+    return `mm_cache_v2_${JSON.stringify(payload)}`;
+  }
+
+  function init() {
+    const form = document.getElementById('predictForm');
+    const errorBanner = document.getElementById('errorBanner');
+    const closeError = document.getElementById('closeError');
+
+    closeError.addEventListener('click', () => errorBanner.classList.add('hidden'));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+
+      errorBanner.classList.add('hidden');
+      if (!Validator.validate()) return;
+
+      const payload = buildPayload();
+      const cacheKey = getCacheKey(payload);
+      const cachedResponse = localStorage.getItem(cacheKey);
+
+      // Return instant local cache response if payload properties match
+      if (cachedResponse) {
+        try {
+          ResultRenderer.render(JSON.parse(cachedResponse));
+          return;
+        } catch (_) {
+          localStorage.removeItem(cacheKey);
+        }
+      }
+
+      setLoading(true);
+
+      try {
+        const response = await fetch(`${CONFIG.apiBase}/predict`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors',
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          let errDetail = `Status: ${response.status}`;
+          try {
+            const body = await response.json();
+            if (body.detail) errDetail = typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail);
+          } catch (_) {}
+          throw new Error(errDetail);
+        }
+
+        const data = await response.json();
+        // Save computed prediction securely in client index context
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        ResultRenderer.render(data);
+
+      } catch (err) {
+        errorBanner.classList.remove('hidden');
+        document.getElementById('errorMsg').textContent = err.message.includes('Failed to fetch')
+          ? 'Network timeout reaching connection server. Verify active web status.'
+          : err.message;
+        errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Reset workflow
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      const card = document.getElementById('resultCard');
+      card.animate([
+        { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+        { opacity: 0, transform: 'translate3d(0, 20px, 0)' }
+      ], { duration: 250, easing: 'ease-in', fill: 'forwards' }).onfinish = () => {
+        card.classList.add('hidden');
+      };
+
+      form.reset();
+
+      // Clear layout overrides
+      document.querySelectorAll('.stress-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.field-card').forEach(c => c.classList.remove('field-filled', 'field-error'));
+      document.querySelectorAll('.field-err').forEach(e => e.classList.add('hidden'));
+
+      // Re-evaluate initial progress ranges
+      StateController.elements['avgHours'].value = 3;
+      StateController.elements['sleep'].value = 7;
+      
+      const dispatchInput = new Event('input');
+      StateController.elements['avgHours'].dispatchEvent(dispatchInput);
+      StateController.elements['sleep'].dispatchEvent(dispatchInput);
+
+      StateController.calculateProgress();
+      ResultRenderer.hideSleepToast();
+      errorBanner.classList.add('hidden');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  return { init };
+})();
+
+/* ─────────────────────────────────────────────
+   8. Boot Hook
 ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   ThemeManager.init();
   ParticleEngine.init();
-  initStickyHeader();
-  initRangeInputs();
-  initStressChips();
-  initProgress();
-  initFieldStates();
-  initLiveValidationClear();
-  initErrorBanner();
-  initForm();
-  initReset();
-  initScrollAnimations();
-  initServerConnection();
+  StateController.init();
+  FormManager.init();
+  ConnectionEngine.checkWarmup();
+  ConnectionEngine.startKeepAlive();
 
-  const closeToastBtn = document.getElementById('closeToast');
-  if (closeToastBtn) {
-    closeToastBtn.addEventListener('click', hideSleepOutToast);
+  const closeToast = document.getElementById('closeToast');
+  if (closeToast) {
+    closeToast.addEventListener('click', ResultRenderer.hideSleepToast);
   }
 });
