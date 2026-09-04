@@ -237,9 +237,6 @@ def _compute_risk_penalty(data: PredictionInput, base_score: float) -> float:
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
-@app.get("/health")
-def health_check():
-    return {"status": "ok", "model_loaded": "instance" in ml_model}
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(data: PredictionInput):
