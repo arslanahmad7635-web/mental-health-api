@@ -37,21 +37,17 @@
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-100 transition-colors duration-500 overflow-x-hidden">
 
-  <!-- Ambient background blobs -->
   <div class="ambient-bg" aria-hidden="true">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
     <div class="blob blob-3"></div>
   </div>
 
-  <!-- Particle canvas -->
   <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-  <!-- ── Top Nav ─────────────────────────────────────────────── -->
   <header id="mainHeader" class="sticky top-0 z-50 transition-all duration-300">
     <div class="header-inner">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <!-- Logo -->
         <div class="flex items-center gap-3 group cursor-pointer">
           <div class="logo-mark">
             <div class="logo-ring"></div>
@@ -70,15 +66,12 @@
             AI-Powered
           </span>
 
-          <!-- Theme Toggle -->
           <button id="themeToggle" aria-label="Toggle theme" class="theme-toggle-btn">
             <div class="toggle-track">
               <div class="toggle-thumb">
-                <!-- Sun -->
                 <svg id="sunIcon" class="w-3.5 h-3.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
                 </svg>
-                <!-- Moon -->
                 <svg id="moonIcon" class="w-3.5 h-3.5 text-slate-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
                 </svg>
@@ -93,29 +86,24 @@
     </div>
   </header>
 
-  <!-- ── Hero ───────────────────────────────────────────────── -->
   <section class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-14 pb-10">
     <div class="text-center max-w-3xl mx-auto">
-      <!-- Animated badge -->
       <div class="hero-badge animate-float-in">
         <span class="badge-dot"></span>
         <span>Mental Wellness Assessment</span>
         <span class="badge-arrow">→</span>
       </div>
 
-      <!-- Headline -->
       <h1 class="hero-headline animate-slide-up-hero">
         Understand Your
         <span class="gradient-text"> Mental Wellness</span>
         <br class="hidden sm:block"/>in Minutes
       </h1>
 
-      <!-- Subtext -->
       <p class="hero-sub animate-fade-in-hero">
         Answer a few questions about your lifestyle, habits, and digital usage. Our AI model delivers a personalized wellness score with actionable insights.
       </p>
 
-      <!-- Stats row -->
       <div class="stats-row animate-fade-in-hero-delay">
         <div class="stat-item">
           <span class="stat-num">12</span>
@@ -135,11 +123,9 @@
     </div>
   </section>
 
-  <!-- ── Main Form ───────────────────────────────────────────── -->
   <main class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pb-20">
     <form id="predictForm" novalidate>
 
-      <!-- Progress bar -->
       <div class="progress-wrap">
         <div class="progress-header">
           <span class="progress-label">Form Progress</span>
@@ -150,7 +136,6 @@
         </div>
       </div>
 
-      <!-- ── Section 1: Personal Profile ── -->
       <div class="section-block" data-section="1">
         <div class="section-header">
           <div class="section-icon">
@@ -167,17 +152,15 @@
 
         <div class="fields-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
-          <!-- Age -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
             </div>
             <label for="age" class="field-label">Age</label>
-            <input type="number" id="age" name="Age" min="0" max="120" placeholder="25" class="field-input" autocomplete="off"/>
+            <input type="number" id="age" name="Age" min="5" max="100" placeholder="25" class="field-input" autocomplete="off"/>
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Gender -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/></svg>
@@ -194,7 +177,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Country -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253M3 12c0-.778.099-1.533.284-2.253"/></svg>
@@ -220,7 +202,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Academic Level -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/></svg>
@@ -239,7 +220,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Stress Level -->
           <div class="field-card sm:col-span-2 lg:col-span-2" data-field>
             <div class="field-icon-wrap">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
@@ -258,7 +238,6 @@
         </div>
       </div>
 
-      <!-- ── Section 2: Digital Habits ── -->
       <div class="section-block" data-section="2">
         <div class="section-header">
           <div class="section-icon" style="background: linear-gradient(135deg,#6366f1,#8b5cf6)">
@@ -275,7 +254,6 @@
 
         <div class="fields-grid grid grid-cols-1 sm:grid-cols-2">
 
-          <!-- Platform -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
@@ -296,7 +274,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Purpose -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>
@@ -316,7 +293,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Avg Daily Usage Hours -->
           <div class="field-card sm:col-span-2" data-field>
             <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -337,7 +313,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Daily Unlocks -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap" style="background:linear-gradient(135deg,#6366f115,#8b5cf615);color:#6366f1">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3"/></svg>
@@ -351,7 +326,6 @@
         </div>
       </div>
 
-      <!-- ── Section 3: Lifestyle ── -->
       <div class="section-block" data-section="3">
         <div class="section-header">
           <div class="section-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">
@@ -368,7 +342,6 @@
 
         <div class="fields-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
-          <!-- Study Hours -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap" style="background:linear-gradient(135deg,#f59e0b15,#ef444415);color:#f59e0b">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
@@ -379,7 +352,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Physical Activity -->
           <div class="field-card" data-field>
             <div class="field-icon-wrap" style="background:linear-gradient(135deg,#f59e0b15,#ef444415);color:#f59e0b">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
@@ -390,7 +362,6 @@
             <div class="field-err hidden"></div>
           </div>
 
-          <!-- Sleep Hours -->
           <div class="field-card sm:col-span-2 lg:col-span-1" data-field>
             <div class="field-icon-wrap" style="background:linear-gradient(135deg,#f59e0b15,#ef444415);color:#f59e0b">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
@@ -414,7 +385,6 @@
         </div>
       </div>
 
-      <!-- Error Banner -->
       <div id="errorBanner" class="hidden error-banner">
         <div class="error-icon">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -430,39 +400,43 @@
         </button>
       </div>
 
-      <!-- Submit -->
-      <div class="submit-wrap">
-        <button type="submit" id="submitBtn" class="submit-btn">
-          <span class="submit-bg"></span>
-          <span class="submit-shimmer"></span>
-          <span id="btnText" class="relative z-10 flex items-center gap-3">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-            Assess My Wellness
-          </span>
-          <svg id="btnSpinner" class="w-5 h-5 hidden absolute right-6 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
-        </button>
-        <p class="submit-note">🔒 Your data is processed locally and never stored.</p>
+      <div class="flex flex-col items-center mt-8">
+        <p id="serverStatus" class="hidden text-xs font-medium text-slate-500 mb-3 animate-pulse"></p>
+
+        <div class="submit-wrap w-full flex justify-center">
+          <button type="submit" id="submitBtn" class="submit-btn max-w-sm w-full">
+            <span class="submit-bg"></span>
+            <span class="submit-shimmer"></span>
+            <span id="btnText" class="relative z-10 flex items-center justify-center gap-3 w-full">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+              Assess My Wellness
+            </span>
+            <svg id="btnSpinner" class="w-5 h-5 hidden absolute right-6 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+          </button>
+        </div>
+
+        <p id="slowHint" class="hidden text-xs text-amber-600 dark:text-amber-500 mt-3 font-medium transition-opacity">
+          ⏳ Server is waking up from sleep — this may take up to 30 seconds...
+        </p>
+        <p class="submit-note mt-3">🔒 Your data is processed locally and never stored.</p>
       </div>
 
     </form>
 
-    <!-- ── Result Card ── -->
-    <div id="resultCard" class="hidden result-section">
-      <!-- Confetti canvas -->
+    <div id="resultCard" class="hidden result-section mt-12">
       <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
 
       <div class="result-card">
-        <!-- Animated top bar -->
         <div id="resultTopBar" class="result-top-bar">
           <div class="result-bar-shine"></div>
         </div>
 
-        <div class="result-body">
-          <!-- Left: Score Ring -->
-          <div class="score-ring-wrap">
+        <div class="result-body flex flex-col md:flex-row gap-8">
+          
+          <div class="score-ring-wrap flex-shrink-0 mx-auto md:mx-0">
             <div class="score-ring-outer">
               <svg class="score-svg" viewBox="0 0 120 120">
                 <defs>
@@ -475,58 +449,56 @@
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                   </filter>
                 </defs>
-                <!-- Background track -->
-                <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="8"
-                  class="text-slate-100 dark:text-slate-700/60"/>
-                <!-- Progress arc -->
-                <circle id="scoreCircle" cx="60" cy="60" r="52" fill="none"
-                  stroke="url(#ringGrad)" stroke-width="8" stroke-linecap="round"
-                  class="score-arc"
-                  style="stroke-dasharray:326.7;stroke-dashoffset:326.7;transform:rotate(-90deg);transform-origin:60px 60px;filter:url(#glow)"/>
+                <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="8" class="text-slate-100 dark:text-slate-700/60"/>
+                <circle id="scoreCircle" cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad)" stroke-width="8" stroke-linecap="round" class="score-arc" style="stroke-dasharray:326.7;stroke-dashoffset:326.7;transform:rotate(-90deg);transform-origin:60px 60px;filter:url(#glow)"/>
               </svg>
-              <!-- Center content -->
-              <div class="score-center">
-                <span id="scoreDisplay" class="score-num">—</span>
-                <span class="score-denom">/10</span>
+              <div class="score-center flex flex-col items-center justify-center">
+                <span id="scoreDisplay" class="score-num font-black leading-none">—</span>
+                <span class="score-denom text-slate-400 font-medium text-sm mt-1">/ 10</span>
               </div>
             </div>
-
-            <!-- Decorative rings -->
             <div class="deco-ring deco-ring-1"></div>
             <div class="deco-ring deco-ring-2"></div>
           </div>
 
-          <!-- Right: Details -->
-          <div class="result-details">
-            <div class="result-badge" id="resultBadge">Wellness Score</div>
-            <h3 id="scoreLabel" class="result-headline">—</h3>
-            <p id="scoreDesc" class="result-desc">Your results are ready.</p>
+          <div class="result-details flex-1">
+            
+            <div class="flex items-center gap-3 mb-2">
+              <div class="uppercase tracking-wider text-[10px] font-bold px-2.5 py-1 rounded-md border" id="resultBadge">Wellness Score</div>
+              <p id="assessedAt" class="hidden text-xs text-slate-400 font-medium"></p>
+            </div>
+            <h3 id="scoreLabel" class="text-2xl font-bold tracking-tight mb-2 text-slate-800 dark:text-slate-100">—</h3>
+            <p id="scoreDesc" class="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Your results are ready.</p>
 
-            <!-- Metric pills -->
-            <div id="metricPills" class="metric-pills"></div>
+            <div class="mb-6">
+              <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Input Parameters</h4>
+              <div id="metricPills" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+            </div>
 
-            <!-- Mini bar chart -->
-            <div class="mini-bars" id="miniBars"></div>
+            <div>
+              <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Core Dimensions</h4>
+              <div id="dimensionInsights" class="hidden flex flex-col gap-3"></div>
+            </div>
+            
           </div>
         </div>
 
-        <!-- Recommendations -->
-        <div class="recommendations" id="recommendations">
-          <h4 class="rec-title">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
-            Personalized Insights
+        <div class="recommendations mt-8 pt-6 border-t border-slate-200/60 dark:border-slate-700/60" id="recommendations">
+          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Actionable Recommendations
           </h4>
-          <div id="recItems" class="rec-items"></div>
+          <div id="recItems" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
         </div>
 
-        <!-- Footer note -->
-        <div class="result-footer">
-          <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
-          <p>This assessment is for informational purposes only and does not constitute medical advice. If you have concerns about your mental health, please speak with a qualified healthcare professional.</p>
+        <div class="result-footer flex items-start gap-2 mt-8 pt-6 border-t border-slate-100 dark:border-slate-800/60">
+          <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">This assessment is for informational purposes only and does not constitute medical advice. If you have concerns about your mental health, please speak with a qualified healthcare professional.</p>
         </div>
       </div>
 
-      <!-- Reset Button -->
       <div class="text-center mt-6">
         <button type="button" id="resetBtn" class="reset-btn">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
@@ -536,7 +508,6 @@
     </div>
   </main>
 
-  <!-- ── Footer ── -->
   <footer class="relative z-10 border-t border-slate-200/60 dark:border-slate-800/60 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -546,7 +517,7 @@
           </div>
           <span class="font-bold text-slate-700 dark:text-slate-300">MindMetric</span>
         </div>
-        <p class="text-xs text-slate-400 dark:text-slate-600">© 2025 MindMetric. For research and informational use only.</p>
+        <p class="text-xs text-slate-400 dark:text-slate-600">© 2026 MindMetric. For research and informational use only.</p>
         <p class="text-xs text-slate-400 dark:text-slate-600">Powered by machine learning.</p>
       </div>
     </div>
